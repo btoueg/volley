@@ -224,30 +224,8 @@ public class HurlStack implements HttpStack {
         if (body != null) {
             connection.setDoOutput(true);
             connection.addRequestProperty(HEADER_CONTENT_TYPE, request.getBodyContentType());
-
-            MultipartRequest.ProgressReporter progressReporter = null;
-            if(request instanceof MultipartRequest)
-            {
-                progressReporter = ((MultipartRequest)request).mProgressReporter;
-            }
-
             DataOutputStream out = new DataOutputStream(connection.getOutputStream());
-
-            int transferredBytes = 0;
-            int totalSize = body.length;
-            int offset = 0;
-            int chunkSize = Math.min(2048, Math.max(totalSize-offset,0));
-            while(chunkSize > 0 && offset + chunkSize <= totalSize)
-            {
-                out.write(body,offset,chunkSize);
-                transferredBytes += chunkSize;
-                if (progressReporter != null)
-                {
-                    progressReporter.transferred(transferredBytes, totalSize);
-                }
-                offset += chunkSize;
-                chunkSize = Math.min(chunkSize, Math.max(totalSize-offset,0));
-            }
+            out.write(body);
             out.close();
         }
     }
